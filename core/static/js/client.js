@@ -292,11 +292,11 @@ window.addEventListener("popstate", function (event) {
 
 async function navReturnFromCrud() {
   const currentRouteAndParams = getCurrentRouteAndParams();
-  const params = currentRouteAndParams.params;
-  delete params.create;
-  delete params.read;
-  delete params.update;
-  delete params.delete;
+  const params = Object.fromEntries(
+    Object.entries(currentRouteAndParams.params).filter(([k]) =>
+      ["organizationId", "tloId"].includes(k)
+    )
+  );
   crudModal.hide(); // This returns immediately but kicks of an async process
   await new Promise((resolve) => setTimeout(resolve, 600)); // wait for modal to hide (300 ms)
   nav(currentRouteAndParams.route, params);
@@ -1514,7 +1514,7 @@ async function renderClients(queryParams) {
     clients: clientsPaginated.results,
     clientRecord: clientRecord,
     allDataSources: allDataSources,
-    canManageClients: true //await hasGlobalPermission("client.manage"),
+    canManageClients: await hasGlobalPermission("client.manage"),
   };
 
   return content(renderParams);
